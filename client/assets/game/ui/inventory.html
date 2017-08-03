@@ -1,0 +1,112 @@
+<div id="player-inventory">
+    <div id="section-1">
+        <div id="item-section" target="weapon">Weapon</div>
+        <div id="item"></div>
+
+        <div id="item-section" target="helmet">Helmet</div>
+        <div id="item"></div>
+
+        <div id="item-section" target="armor">Armor</div>
+        <div id="item"></div>
+
+        <div id="item-section" target="necklace">Necklace</div>
+        <div id="item"></div>
+
+        <div id="item-section" target="ring">Ring</div>
+        <div id="item"></div>
+    </div>
+
+    <div id="section-2"></div>
+</div>
+<script>
+var equip_lock   = false;
+var unequip_lock = false;
+function equipItem(obj){
+    if( !equip_lock )
+    {
+        let user_id     = obj.user_id;
+        let player_name = obj.player_name;
+        let item_id   = obj.item_id;
+        let item_type = obj.item_type;
+        let item_info = obj.item_info;
+        let item_img  = obj.item_img;
+        
+        socket.emit('playerEquipItem',{"user_id":user_id,"player_name":player_name,"item_id":item_id,"item_type":item_type,"item_info":item_info,"item_img":item_img});
+    }
+}
+function unequipItem(elem){
+    if( !unequip_lock )
+    {
+        unequip_lock = true;
+        let lkiAU = elem.getAttribute('target');
+    
+        socket.emit('playerUnequipItem',{'user_id':CURRENT_PLAYER.user_id,'player_name':CURRENT_PLAYER.name,'item':lkiAU});
+    }
+}
+$(function(){
+    //draw player's bag slots
+    for( let i=0; i < CURRENT_PLAYER.inventory_limit; i++ )
+        $('#player-inventory > #section-2').append('<div id="kare"></div>');
+    
+    //put inventory items to bag slots
+    let rEzWE = 0; //last index of bag slots
+    for( let i in CURRENT_PLAYER.inventory )
+    {
+        if( i != 'inArray' && typeof CURRENT_PLAYER.inventory[i] != 'undefined' && CURRENT_PLAYER.inventory[i] != null )
+        {
+            let item      = CURRENT_PLAYER.inventory[i];
+            let item_id   = i;
+            let item_type = MEMORY.game.itemTypes[item.type];
+            let slot      = document.querySelectorAll('#player-inventory > #section-2 > #kare');
+
+            slot[rEzWE].innerHTML = '<img src="'+MEMORY.game.itemTypes.images[item.type]+'" id="item-icon"><div id="item-desc"><span id="item-desc"><span class="'+item.rarity+'" id="item-name">'+item.name+'</span>'+item.description+'<span id="rarity">Rarity: '+item.rarity+'</span><button class="inventory-btn" id="equip" onclick="equipItem({\'user_id\':'+CURRENT_PLAYER.user_id+',\'player_name\':\''+CURRENT_PLAYER.name+'\',\'item_id\':'+item_id+',\'item_type\':\''+item_type+'\',\'item_info\':{\'name\':\''+item.name.split("'").join("\\'")+'\',\'description\':\''+item.description.split("'").join("\\'")+'\',\'rarity\':\''+item.rarity+'\'},\'item_img\':\''+item.img+'\'})">Equip</button></span></div>';
+
+            rEzWE++;
+        }
+    }
+
+    //put equipped items to HTML
+    let dom;
+
+    //weapon
+    if( CURRENT_PLAYER.inventory_equipped.item_infos.weapon == null || typeof CURRENT_PLAYER.inventory_equipped.item_infos.weapon == 'undefined' )
+        dom = '<div id="wrap"><span>No weapon</span></div>';
+    else
+        dom = '<div id="wrap"><span class="'+CURRENT_PLAYER.inventory_equipped.item_infos.weapon.rarity+'"><img src="assets/game/icons/items/weapon.png" id="item-icon">'+CURRENT_PLAYER.inventory_equipped.item_infos.weapon.name+'</span></div><div id="desc"><span id="item-desc">'+CURRENT_PLAYER.inventory_equipped.item_infos.weapon.description+'<span id="rarity">Rarity: '+CURRENT_PLAYER.inventory_equipped.item_infos.weapon.rarity+'</span><button class="inventory-btn" id="unequip" target="weapon" onclick="unequipItem(this)">Unequip</button></span></div>';        
+    $('#player-inventory > div#section-1 > div#item-section[target="weapon"] + div#item').html(dom);
+    
+    //helmet
+    if( CURRENT_PLAYER.inventory_equipped.item_infos.helmet == null || typeof CURRENT_PLAYER.inventory_equipped.item_infos.helmet == 'undefined' )
+        dom = '<div id="wrap"><span>No helmet/hat</span></div>';
+    else
+        dom = '<div id="wrap"><span class="'+CURRENT_PLAYER.inventory_equipped.item_infos.helmet.rarity+'"><img src="assets/game/icons/items/helmet.png" id="item-icon">'+CURRENT_PLAYER.inventory_equipped.item_infos.helmet.name+'</span></div><div id="desc"><span id="item-desc">'+CURRENT_PLAYER.inventory_equipped.item_infos.helmet.description+'<span id="rarity">Rarity: '+CURRENT_PLAYER.inventory_equipped.item_infos.helmet.rarity+'</span><button class="inventory-btn" id="unequip" target="helmet" onclick="unequipItem(this)">Unequip</button></span></div>';
+    $('#player-inventory > div#section-1 > div#item-section[target="helmet"] + div#item').html(dom);
+    
+    //armor
+    if( CURRENT_PLAYER.inventory_equipped.item_infos.armor == null || typeof CURRENT_PLAYER.inventory_equipped.item_infos.armor == 'undefined' )
+        dom = '<div id="wrap"><span>No armor/robe</span></div>';
+    else
+        dom = '<div id="wrap"><span class="'+CURRENT_PLAYER.inventory_equipped.item_infos.armor.rarity+'"><img src="assets/game/icons/items/armor.png" id="item-icon">'+CURRENT_PLAYER.inventory_equipped.item_infos.armor.name+'</span></div><div id="desc"><span id="item-desc">'+CURRENT_PLAYER.inventory_equipped.item_infos.armor.description+'<span id="rarity">Rarity: '+CURRENT_PLAYER.inventory_equipped.item_infos.armor.rarity+'</span><button class="inventory-btn" id="unequip" target="armor" onclick="unequipItem(this)">Unequip</button></span></div>';        
+    $('#player-inventory > div#section-1 > div#item-section[target="armor"] + div#item').html(dom);
+    
+    //necklace
+    if( CURRENT_PLAYER.inventory_equipped.item_infos.necklace == null || typeof CURRENT_PLAYER.inventory_equipped.item_infos.necklace == 'undefined' )
+        dom = '<div id="wrap"><span>No necklace</span></div>';
+    else
+        dom = '<div id="wrap"><span class="'+CURRENT_PLAYER.inventory_equipped.item_infos.necklace.rarity+'"><img src="assets/game/icons/items/necklace.png" id="item-icon">'+CURRENT_PLAYER.inventory_equipped.item_infos.necklace.name+'</span></div><div id="desc"><span id="item-desc">'+CURRENT_PLAYER.inventory_equipped.item_infos.necklace.description+'<span id="rarity">Rarity: '+CURRENT_PLAYER.inventory_equipped.item_infos.necklace.rarity+'</span><button class="inventory-btn" id="unequip" target="necklace" onclick="unequipItem(this)">Unequip</button></span></div>';        
+    $('#player-inventory > div#section-1 > div#item-section[target="necklace"] + div#item').html(dom);
+    
+    //ring
+    if( CURRENT_PLAYER.inventory_equipped.item_infos.ring == null || typeof CURRENT_PLAYER.inventory_equipped.item_infos.ring == 'undefined' )
+        dom = '<div id="wrap"><span>No ring</span></div>';
+    else
+        dom = '<div id="wrap"><span class="'+CURRENT_PLAYER.inventory_equipped.item_infos.ring.rarity+'"><img src="assets/game/icons/items/ring.png" id="item-icon">'+CURRENT_PLAYER.inventory_equipped.item_infos.ring.name+'</span></div><div id="desc"><span id="item-desc">'+CURRENT_PLAYER.inventory_equipped.item_infos.ring.description+'<span id="rarity">Rarity: '+CURRENT_PLAYER.inventory_equipped.item_infos.ring.rarity+'</span><button class="inventory-btn" id="unequip" target="ring" onclick="unequipItem(this)">Unequip</button></span></div>';        
+    $('#player-inventory > div#section-1 > div#item-section[target="ring"] + div#item').html(dom);
+
+    //////////////////////////////////////////////////////
+    $("#section-1").mCustomScrollbar({
+        theme:'inset-3',
+        axis:'y'
+    });
+});
+</script>

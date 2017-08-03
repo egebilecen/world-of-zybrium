@@ -1,0 +1,52 @@
+<div id="creation">
+    <span id="title">Create Character</span>
+    <table>
+        <tbody>
+            <tr>
+                <td>Nickname:</td>
+                <td>
+                    <input type="text" name="nickname" class="login-input">
+                </td>
+            </tr>
+            <tr>
+                <td>Class:</td>
+                <td>
+                    ---
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <span style="font-size: 20px;text-align: center;display: block;padding-bottom: 2px;">
+                        Character appearance
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td>Face:</td>
+                <td id="character-appearance">
+                    <i class="fa fa-arrow-left" aria-hidden="true" target="face"></i>
+                    <i class="fa fa-arrow-right" aria-hidden="true" target="face"></i>
+                </td>
+            </tr>
+            <tr>
+                <td>Hair:</td>
+                <td id="character-appearance">
+                    <i class="fa fa-arrow-left" aria-hidden="true" target="hair"></i>
+                    <i class="fa fa-arrow-right" aria-hidden="true" target="hair"></i>
+                </td>
+            </tr>
+            <tr>
+                <td>Body:</td>
+                <td id="character-appearance">
+                    <i class="fa fa-arrow-left" aria-hidden="true" target="body"></i>
+                    <i class="fa fa-arrow-right" aria-hidden="true" target="body"></i>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div id="character-overview">
+        <canvas id="overview-canvas"></canvas>
+    </div>
+    <button id="create-character" class="login-input">Create</button>
+    <span id="data-character-create"></span>
+</div>

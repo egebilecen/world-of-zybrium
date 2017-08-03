@@ -1,0 +1,484 @@
+<div id="selection-screen">
+    <span id="title">Select Character <small>Character Limit: <span id="character-limit"></span></small></span>
+    <img src="assets/site/loader.gif" id="loader" style="margin: 15px auto;display: block;width: 50px;height: 50px;">
+</div>
+<script id="selection">
+    var allow_click = true;
+    var create_image = new Image();
+    create_image.src = 'assets/site/plus.png';
+    var MEMORY_CHARACTER_IMAGES = {};
+    var TOTAL_THING_COUNT = 4; //face,hair,body,armor
+
+    function getClassName( id )
+    {
+        for( let i=0; i < CLASS_LIST.length; i++ )
+        {
+            if( CLASS_LIST[i].id == id )
+                return CLASS_LIST[i].name;
+        }
+    }
+    function createPlayer(dom)
+    {
+
+        if( allow_click )
+        {
+            dom.childNodes[1].childNodes[1].src = dom.childNodes[1].childNodes[1].src.replace('plus.png','loader.gif');
+            dom.childNodes[1].childNodes[0].style.cursor = 'not-allowed';
+            allow_click = false;
+            
+            setTimeout(() => {
+                
+                $.ajax({
+                    url:"assets/game/ui/character_create.html",
+                    type:"get",
+                    success:function(data){
+                        let selection_screen = document.getElementById('selection-screen');
+                        let allow_click = true;
+                        selection_screen.innerHTML = data;
+                        selection_screen.id = 'creation-screen';
+
+                        SELECTED_DATAS = {
+                            face:null,
+                            hair:null,
+                            body:null,
+                            helmet:null
+                        }
+                        MEMORY_IMAGES  = {
+                            face:{},
+                            hair:{},
+                            body:{},
+                            helmet:{}
+                        }
+                        TOTAL_RESOURCES = {
+                            face:null,
+                            hair:null,
+                            body:null,
+                            helmet:null
+                        }
+                        COUNTERS = {
+                            face:0,
+                            hair:0,
+                            body:0,
+                            helmet:0
+                        }
+
+                        // for( let i in CLASS_LIST )
+                        // {
+                        //     let _class = CLASS_LIST[i];
+
+                        //     $('select[name=class]').append('<option>'+CLASS_LIST[0].name+'</option>');
+                        // }
+
+                        $("button#create-character").on('click',function(){
+                            if( allow_click )
+                            {
+                                let nickname = $('input[name=nickname]').val();
+                                nickname = nickname.trim();
+
+                                if( nickname.length < 3 )
+                                {
+                                    $('span#data-character-create').html('Your nickname must be greater than 2 characters.').stop().fadeIn(350).css({
+                                        display:'block',
+                                        color:'crimson'
+                                    });
+                                }
+                                else if( nickname.length > 10 )
+                                {
+                                    $('span#data-character-create').html('Your nickname cannot be greater than 10 characters.').stop().fadeIn(350).css({
+                                        display:'block',
+                                        color:'crimson'
+                                    });
+                                }
+                                else
+                                {
+                                    $('span#data-character-create').hide();
+                                    this.style.cursor = 'not-allowed';
+                                    this.innerHTML = '<img src="assets/site/loader.gif" id="loader" style="margin: 0 auto;display: block;width: 25px;height: 25px;">';
+                                    allow_click = false;
+
+                                    socket.emit(
+                                        'createCharacter',
+                                        {
+                                            user_id:PLAYER_ALL_DATA.user_id,
+                                            nickname:nickname,
+                                            class_id:1,
+                                            skins_id:{
+                                                face: SELECTED_DATAS.face.id,
+                                                hair: SELECTED_DATAS.hair.id,
+                                                body: SELECTED_DATAS.body.id
+                                            }
+                                        }
+                                    );
+                                }
+                            }
+                        });
+                        canvasOverview = {
+                            canvas : document.getElementById('overview-canvas'),
+                            ctx    : document.getElementById('overview-canvas').getContext('2d')
+                        };
+                        canvasOverview.ctx.scale(4,4);
+                        canvasOverview.ctx.font = '17px Munro';
+                        canvasOverview.ctx.fillStyle = 'orangered';
+                        canvasOverview.ctx.fillText('Loading..',10,23);
+
+                        appearanceOptions = {
+                            face:document.querySelector('span[target="face"]'),
+                            hair:document.querySelector('span[target="hair"]'),
+                            body:document.querySelector('span[target="body"]')
+                        };
+
+                        socket.emit('characterCreation-getSkinList',{});
+                        socket.on('characterCreation-responseGetSkinList',function(data){
+                            SKIN_LIST = data.data;
+
+                            TOTAL_RESOURCES.face = SKIN_LIST.face.length; 
+                            SELECTED_DATAS.face  = SKIN_LIST.face[0] || null;
+
+                            TOTAL_RESOURCES.hair = SKIN_LIST.hair.length; 
+                            SELECTED_DATAS.hair  = SKIN_LIST.hair[0] || null;
+
+                            TOTAL_RESOURCES.body = SKIN_LIST.body.length; 
+                            SELECTED_DATAS.body  = SKIN_LIST.body[0] || null;
+
+                            //Face
+                            if( SKIN_LIST.face != null )
+                            {
+                                for( let i=0; i < SKIN_LIST.face.length; i++ )
+                                {
+                                    let skin  = SKIN_LIST.face[i];
+                                    skin.index = i;
+
+                                    let image = new Image();
+                                    image.src = skin.img;
+
+                                    image.onload=function(){
+                                        MEMORY_IMAGES.face[skin.id] = image;
+                                        COUNTERS.face++;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                COUNTERS.face = 1;
+                                TOTAL_RESOURCES.face = 1;
+                            }
+
+                            //Hair
+                            if( SKIN_LIST.hair != null )
+                            {
+                                for( let i=0; i < SKIN_LIST.hair.length; i++ )
+                                {
+                                    let skin  = SKIN_LIST.hair[i];
+                                    skin.index = i;
+
+                                    let image = new Image();
+                                    image.src = skin.img;
+
+                                    image.onload=function(){
+                                        MEMORY_IMAGES.hair[skin.id] = image;
+                                        COUNTERS.hair++;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                COUNTERS.hair = 1;
+                                TOTAL_RESOURCES.hair = 1;
+                            }
+
+                            //Body
+                            if( SKIN_LIST.body != null )
+                            {
+                                for( let i=0; i < SKIN_LIST.body.length; i++ )
+                                {
+                                    let skin  = SKIN_LIST.body[i];
+                                    skin.index = i;
+
+                                    let image = new Image();
+                                    image.src = skin.img;
+
+                                    image.onload=function(){
+                                        MEMORY_IMAGES.body[skin.id] = image;
+                                        COUNTERS.body++;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                COUNTERS.body = 1;
+                                TOTAL_RESOURCES.body = 1;
+                            }
+
+                            // Switching Face,Hair,Body //
+                            $('i.fa.fa-arrow-left[target="face"]').on('click', () => {
+                                if( SELECTED_DATAS.face != null && SKIN_LIST.face[ SELECTED_DATAS.face.index - 1 ] )
+                                    SELECTED_DATAS.face = SKIN_LIST.face[ SELECTED_DATAS.face.index - 1 ];
+                            } );
+                            $('i.fa.fa-arrow-left[target="hair"]').on('click', () => {
+                                if( SELECTED_DATAS.hair != null && SKIN_LIST.hair[ SELECTED_DATAS.hair.index - 1 ] )
+                                    SELECTED_DATAS.hair = SKIN_LIST.hair[ SELECTED_DATAS.hair.index - 1 ];
+                            } );
+                            $('i.fa.fa-arrow-left[target="body"]').on('click', () => {
+                                if( SELECTED_DATAS.body != null && SKIN_LIST.body[ SELECTED_DATAS.body.index - 1 ] )
+                                    SELECTED_DATAS.body = SKIN_LIST.body[ SELECTED_DATAS.body.index - 1 ];
+                            } );
+
+
+                            $('i.fa.fa-arrow-right[target="face"]').on('click', () => {
+                                if( SELECTED_DATAS.face != null && SKIN_LIST.face[ SELECTED_DATAS.face.index + 1 ] )
+                                    SELECTED_DATAS.face = SKIN_LIST.face[ SELECTED_DATAS.face.index + 1 ];
+                            } );
+                            $('i.fa.fa-arrow-right[target="hair"]').on('click', () => {
+                                if( SELECTED_DATAS.hair != null && SKIN_LIST.hair[ SELECTED_DATAS.hair.index + 1 ] )
+                                    SELECTED_DATAS.hair = SKIN_LIST.hair[ SELECTED_DATAS.hair.index + 1 ];
+                            } );
+                            $('i.fa.fa-arrow-right[target="body"]').on('click', () => {
+                                if( SELECTED_DATAS.body != null && SKIN_LIST.body[ SELECTED_DATAS.body.index + 1 ] )
+                                    SELECTED_DATAS.body = SKIN_LIST.body[ SELECTED_DATAS.body.index + 1 ];
+                            } );
+
+                            let interval = setInterval( () => {
+                                if( COUNTERS.face == TOTAL_RESOURCES.face && COUNTERS.hair == TOTAL_RESOURCES.hair && COUNTERS.body == TOTAL_RESOURCES.body )
+                                {
+                                    clearInterval(interval);
+
+                                    setInterval( () => {
+                                        canvasOverview.ctx.clearRect(0,0,canvasOverview.canvas.width, canvasOverview.canvas.height);
+
+                                        if( SELECTED_DATAS.body != null )
+                                        {
+                                            //body
+                                            canvasOverview.ctx.drawImage(
+                                                MEMORY_IMAGES.body[SELECTED_DATAS.body.id],
+                                                1*MEMORY_IMAGES.body[SELECTED_DATAS.body.id].width/3,2*MEMORY_IMAGES.body[SELECTED_DATAS.body.id].height/4,
+                                                MEMORY_IMAGES.body[SELECTED_DATAS.body.id].width/3,MEMORY_IMAGES.body[SELECTED_DATAS.body.id].height/4,
+                                                -5,5,
+                                                MEMORY_IMAGES.body[SELECTED_DATAS.body.id].width/5,MEMORY_IMAGES.body[SELECTED_DATAS.body.id].height/16
+                                            );
+                                        }
+
+                                        if( SELECTED_DATAS.face != null )
+                                        {
+                                            //face
+                                            canvasOverview.ctx.drawImage(
+                                                MEMORY_IMAGES.face[SELECTED_DATAS.face.id],
+                                                1*MEMORY_IMAGES.face[SELECTED_DATAS.face.id].width/3,2*MEMORY_IMAGES.face[SELECTED_DATAS.face.id].height/4,
+                                                MEMORY_IMAGES.face[SELECTED_DATAS.face.id].width/3,MEMORY_IMAGES.face[SELECTED_DATAS.face.id].height/4,
+                                                -5,5,
+                                                MEMORY_IMAGES.face[SELECTED_DATAS.face.id].width/5,MEMORY_IMAGES.face[SELECTED_DATAS.face.id].height/16
+                                            );
+                                        }
+
+                                        if( SELECTED_DATAS.hair != null )
+                                        {
+                                            //hair
+                                            canvasOverview.ctx.drawImage(
+                                                MEMORY_IMAGES.hair[SELECTED_DATAS.hair.id],
+                                                1*MEMORY_IMAGES.hair[SELECTED_DATAS.hair.id].width/3,2*MEMORY_IMAGES.hair[SELECTED_DATAS.hair.id].height/4,
+                                                MEMORY_IMAGES.hair[SELECTED_DATAS.hair.id].width/3,MEMORY_IMAGES.hair[SELECTED_DATAS.hair.id].height/4,
+                                                -5,2,
+                                                MEMORY_IMAGES.hair[SELECTED_DATAS.hair.id].width/5,MEMORY_IMAGES.hair[SELECTED_DATAS.hair.id].height/16
+                                            );
+                                        }
+                                    }, 1000/60 );
+                                }
+                            } ,1000/60 );
+                        });
+                    }
+                });
+
+            },500);
+        }
+    }
+
+    $(function(){
+        var counter  = 0;
+        var creation = false;
+        character_canvas_list = {};
+
+        $("#character-limit").html(PLAYER_ALL_DATA.max_player);
+
+        $("#character-selection").on('mousedown',function(e){ e.target.nodeName != 'INPUT' ? e.preventDefault() : null; });
+
+        if( PLAYER_ALL_DATA.length > 0 )
+        {
+            socket.emit('classesInfo',{});
+
+            socket.on('reponseClassesInfo',function(data){
+
+                CLASS_LIST = data;
+
+                for( let i=0; i<PLAYER_ALL_DATA.length; i++ )
+                {
+                    let player     = PLAYER_ALL_DATA[i];
+                    player.user_id = PLAYER_ALL_DATA.user_id;
+
+                    MEMORY_CHARACTER_IMAGES[i] = {};
+                    MEMORY_CHARACTER_IMAGES[i].counter = 0;
+
+                    let dom = '<div id="select" class="character" index="'+i+'" onclick="selectPlayer(this);"><span id="nickname">'+player.nickname+'<small>Lv. <span id="level">'+player.level+'</span></small></span><div id="character-img-div"><canvas id="character-overview" index="'+i+'"></canvas></div><span id="class">'+getClassName(player.class_id)+' Mage</span></div>';
+
+                    $('#selection-screen').append(dom);
+
+                    character_canvas_list[i] = document.querySelector('canvas[index="'+i+'"]').getContext('2d');
+                    character_canvas_list[i].font = '80px Munro';
+                    character_canvas_list[i].fillStyle = 'red';
+                    character_canvas_list[i].fillText('Loading...',0,100);
+
+                    socket.emit('getSkinsSelectionScreen',{user_id:player.user_id,index:i});
+
+                    counter++;
+                }
+
+            });
+        }
+
+        let sokd = setInterval(function(){
+            let loader = document.getElementById('loader');
+            if( counter == PLAYER_ALL_DATA.length )
+            {
+                if( loader )
+                    loader.parentNode.removeChild( loader );
+
+                let dom = '<div class="character" id="new-character" onclick="createPlayer(this);"><span id="nickname">&nbsp;<small><span id="level"></span></small></span><div id="character-img-div"><canvas id="create-character-canvas" style="width:75px;height:125px;display:block;margin:0 auto;"></canvas><img src="assets/site/plus.png" style="width:100px;height:100px;position:absolute;top:35px;left:50px;"></img></div><span id="class">&nbsp;</span></div>';
+
+                if( PLAYER_ALL_DATA.length < PLAYER_ALL_DATA.max_player )
+                {
+                    $('#selection-screen').append(dom);
+                }
+
+                clearInterval(sokd);
+            }
+        }, 25);
+
+        $("#selection-screen").mCustomScrollbar({
+            theme:'inset-3',
+            axis:'y'
+        });
+
+        socket.on('ResponseCreateCharacter',function(data){
+            if( data.code == 1 )
+            {
+                $('span#data-character-create').html(data.msg+' Game starting!').stop().fadeIn(350).css({
+                    display:'block',
+                    color:'lightgreen'
+                });
+                $('button#create-character').html('Create');
+
+                setTimeout( ()=>{
+                    let div = document.createElement('div');
+                    div.setAttribute('index',PLAYER_ALL_DATA.length);
+
+                    selectPlayer(div);
+                }, 1000 );
+            }
+            else if( data.code == 0 )
+            {
+                $('span#data-character-create').html(data.msg).stop().fadeIn(350).css({
+                    display:'block',
+                    color:'crimson'
+                });
+                $("button#create-character").html('Create').css('cursor','pointer');
+                allow_click = true;
+            }
+        });
+
+        socket.on('responseGetSkinsSelectionScreen',function(data){
+                let image = new Image();
+                image.src = data.skin_data.img;
+
+                image.onload=function(){
+                    switch( data.skin_data.type )
+                    {
+                        case 1: //helmet
+                            MEMORY_CHARACTER_IMAGES[data.index].helmet = image;
+                        break;
+
+                        case 2: //armor
+                            MEMORY_CHARACTER_IMAGES[data.index].armor = image;
+                        break;
+
+                        case 6: //face
+                            MEMORY_CHARACTER_IMAGES[data.index].face = image;
+                        break;
+
+                        case 7: //hair
+                            MEMORY_CHARACTER_IMAGES[data.index].hair = image;
+                        break;
+
+                        case 8: //body
+                            MEMORY_CHARACTER_IMAGES[data.index].body = image;
+                        break;
+                    }
+                    MEMORY_CHARACTER_IMAGES[data.index].counter++;
+
+                    if( MEMORY_CHARACTER_IMAGES[data.index].counter == TOTAL_THING_COUNT )
+                    {
+                        setTimeout(()=>{
+                            character_canvas_list[data.index].clearRect(0,0,character_canvas_list[data.index].canvas.width, character_canvas_list[data.index].canvas.height);
+                        
+                            if( typeof MEMORY_CHARACTER_IMAGES[data.index].body != "undefined" && MEMORY_CHARACTER_IMAGES[data.index].body != null )
+                            {
+                                //body
+                                character_canvas_list[data.index].drawImage(
+                                    MEMORY_CHARACTER_IMAGES[data.index].body,
+                                    1*MEMORY_CHARACTER_IMAGES[data.index].body.width/3,2*MEMORY_CHARACTER_IMAGES[data.index].body.height/4,
+                                    MEMORY_CHARACTER_IMAGES[data.index].body.width/3,MEMORY_CHARACTER_IMAGES[data.index].body.height/4,
+                                    -60,15,
+                                    MEMORY_CHARACTER_IMAGES[data.index].body.width/1,MEMORY_CHARACTER_IMAGES[data.index].body.height/4
+                                );
+                            }
+
+                            if( typeof MEMORY_CHARACTER_IMAGES[data.index].face != "undefined" && MEMORY_CHARACTER_IMAGES[data.index].face != null )
+                            {
+                                //face
+                                character_canvas_list[data.index].drawImage(
+                                    MEMORY_CHARACTER_IMAGES[data.index].face,
+                                    1*MEMORY_CHARACTER_IMAGES[data.index].face.width/3,2*MEMORY_CHARACTER_IMAGES[data.index].face.height/4,
+                                    MEMORY_CHARACTER_IMAGES[data.index].face.width/3,MEMORY_CHARACTER_IMAGES[data.index].face.height/4,
+                                    -60,15,
+                                    MEMORY_CHARACTER_IMAGES[data.index].face.width/1,MEMORY_CHARACTER_IMAGES[data.index].face.height/4
+                                );
+                            }
+
+                            if( typeof MEMORY_CHARACTER_IMAGES[data.index].hair != "undefined" && MEMORY_CHARACTER_IMAGES[data.index].hair != null && ( typeof MEMORY_CHARACTER_IMAGES[data.index].helmet == "undefined" || MEMORY_CHARACTER_IMAGES[data.index].helmet == null ) )
+                            {
+                                //hair
+                                character_canvas_list[data.index].drawImage(
+                                    MEMORY_CHARACTER_IMAGES[data.index].hair,
+                                    1*MEMORY_CHARACTER_IMAGES[data.index].hair.width/3,2*MEMORY_CHARACTER_IMAGES[data.index].hair.height/4,
+                                    MEMORY_CHARACTER_IMAGES[data.index].hair.width/3,MEMORY_CHARACTER_IMAGES[data.index].hair.height/4,
+                                    -60,0,
+                                    MEMORY_CHARACTER_IMAGES[data.index].hair.width/1,MEMORY_CHARACTER_IMAGES[data.index].hair.height/4
+                                );
+                            }
+
+                            if( typeof MEMORY_CHARACTER_IMAGES[data.index].armor != "undefined" && MEMORY_CHARACTER_IMAGES[data.index].armor != null )
+                            {
+                                //armor
+                                character_canvas_list[data.index].drawImage(
+                                    MEMORY_CHARACTER_IMAGES[data.index].armor,
+                                    1*MEMORY_CHARACTER_IMAGES[data.index].armor.width/3,2*MEMORY_CHARACTER_IMAGES[data.index].armor.height/4,
+                                    MEMORY_CHARACTER_IMAGES[data.index].armor.width/3,MEMORY_CHARACTER_IMAGES[data.index].armor.height/4,
+                                    -60,70,
+                                    MEMORY_CHARACTER_IMAGES[data.index].armor.width/1,MEMORY_CHARACTER_IMAGES[data.index].armor.height/4
+                                );
+                            }
+
+                            if( typeof MEMORY_CHARACTER_IMAGES[data.index].helmet != "undefined" && MEMORY_CHARACTER_IMAGES[data.index].helmet != null )
+                            {
+                                //helmet
+                                character_canvas_list[data.index].drawImage(
+                                    MEMORY_CHARACTER_IMAGES[data.index].helmet,
+                                    1*MEMORY_CHARACTER_IMAGES[data.index].helmet.width/3,2*MEMORY_CHARACTER_IMAGES[data.index].helmet.height/4,
+                                    MEMORY_CHARACTER_IMAGES[data.index].helmet.width/3,MEMORY_CHARACTER_IMAGES[data.index].helmet.height/4,
+                                    -55,10,
+                                    MEMORY_CHARACTER_IMAGES[data.index].helmet.width/1,MEMORY_CHARACTER_IMAGES[data.index].helmet.height/4
+                                );
+                            }
+                        }, 50);
+                    }
+                }
+            });
+        });
+</script>

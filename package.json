@@ -1,0 +1,13 @@
+{
+  "name": "world_of_zybrium",
+  "version": "1.0.0",
+  "description": "2D RPG Multiplayer Game",
+  "main": "app.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ege Bilecen",
+  "license": "ISC"
+}

@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>WoZ - Game Editor</title>
+	<style>
+		*{font-family: Arial}
+		div.section{
+			width: 750px;
+			min-height: 250px;
+			background: #eee;
+			border: 1px solid #aaa;
+			display: block;
+			margin:0 auto;
+			box-sizing: border-box;
+			padding: 10px;
+			position: relative;
+			margin-bottom: 10px;
+		}
+		input,button,textarea:focus{outline: none; !important}
+	</style>
+
+	<script src="assets/js/socket.io-1.4.5.js"></script>
+    <script src="assets/js/jquery-2.2.3.min.js"></script>
+</head>
+<body>
+<script>
+	const socket = io();
+</script>
+	<h2 style="text-align: center;color: purple;">WoZ - Game Editor</h2>
+
+	<div style="display: block;margin-bottom: 10px;" align="center">
+		<input type="password" name="password" style="box-sizing:border-box;"/> <span> <br /> Write your <b>password</b> and leave it alone.</span>
+	</div>
+
+	<div class="section" id="map-list">
+		<h3 style="margin: 0; position: absolute;right:25px;">Map Area</h3>
+		<button onclick="getMapList()">GET MAP LIST</button>
+	
+		<hr />
+		<h3 style="margin-top:0;">Add New Map</h3>
+		<table>
+			<tr>
+				<td>Map Name:</td>
+				<td>
+					<input type="text" name="mapname" placeholder="" />
+				</td>
+			</tr>
+			<tr>
+				<td>Mobs:</td>
+				<td>
+					<input type="text" name="mapmobs" placeholder="1,2,3 (MOB IDs)" />
+				</td>
+			</tr>
+			<tr>
+				<td>NPCs:</td>
+				<td>
+					<input type="text" name="mapnpcs" placeholder="1,2,3 (NPC IDs)" />
+				</td>
+			</tr>
+			<tr>
+				<td>Player Spawn X:</td>
+				<td>
+					<input type="text" name="mapplayerx" placeholder="" />
+				</td>
+			</tr>
+			<tr>
+				<td>Player Spawn Y:</td>
+				<td>
+					<input type="text" name="mapplayery" placeholder="" />
+				</td>
+			</tr>
+			<tr>
+				<td>Map Image:</td>
+				<td>
+					<input type="text" name="maping" value="assets/game/map/xxx.png" />
+				</td>
+			</tr>
+			<tr>
+				<td>Map Entities(Collision):</td>
+				<td>
+					<input type="text" name="mapentities" value="assets/game/map/xxx-collision.png" />
+				</td>
+			</tr>
+			<tr>
+				<td>Zoom Width:</td>
+				<td>
+					<input type="text" name="mapzoomwidth" placeholder="" />
+				</td>
+			</tr>
+			<tr>
+				<td>Zoom Height:</td>
+				<td>
+					<input type="text" name="mapzoomheight" placeholder="" />
+				</td>
+			</tr>
+			<tr>
+				<td>Zoom Yön:</td>
+				<td>
+					<input type="text" name="mapzoomyon" placeholder="1:çarp | 2:böl" />
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<button id="addmap">Add</button>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<span style="color:#777;font-size:13px;">Hiçbir yeri boş bırakmayınız!</span>
+				</td>
+			</tr>
+		</table>
+
+	</div>
+
+	<div class="section" id="player-settings">
+		<h3 style="margin: 0; position: absolute;right:25px;">Player Area</h3>
+		<button onclick="" disabled="">GET PLAYER LIST</button>
+	
+		<hr />
+		<h3 style="margin-top:0;">Get Player Info</h3>
+		<table>
+			<tr>
+				<td>Player Name:</td>
+				<td>
+					<input type="text" name="playernameinfo" placeholder="" />
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<button id="getplayerinfo" onclick="getPlayerInfo()">Get</button>
+				</td>
+			</tr>
+		</table>
+		<textarea name="" id="playerinfo" style="width: 100%;
+		height: 250px;margin-top: 10px;resize: none;"></textarea>
+
+	</div>
+
+<script>
+	var LOCKS = {
+		maplist:false
+	};
+
+	function getMapList()
+	{
+		if( !LOCKS.maplist )
+		{
+			let password = $('input[name=password]').val();
+			socket.emit('GAME-EDITOR-mapList',{pass:password});
+		}
+		else
+		{
+			alert('REFRESH THE PAGE!');
+		}
+	}
+
+	function getPlayerInfo()
+	{
+		let name = $('input[name=playernameinfo]').val();
+		let password = $('input[name=password]').val();
+		socket.emit('GAME-EDITOR-playerInfo',{player_name:name,pass:password});
+	}
+
+	function wrongPassword()
+	{
+		alert('WRONG PASSWORD!');
+		window.scrollTo(0,0);
+		$('input[name=password]').css('border','1px solid red');
+	}
+
+	function truePassword()
+	{
+		$('input[name=password]').css('border','1px solid lime');
+	}
+
+	socket.on('GAME-EDITOR-ResponseWrongPassword',function(){
+		wrongPassword();
+	});
+
+	socket.on('GAME-EDITOR-responseMapList',function(data){
+		truePassword();
+
+		$('div#map-list').append('<hr /><p><b>Total Map: '+data.data.length+'</b></p>');
+		for( let i=0; i < data.data.length; i++ )
+		{
+			let map = data.data[i];
+
+			let html_string = '<table style="margin-bottom:10px;"><tr><td>ID:</td><td><b>'+map.id+'</b></td></tr><tr><td>Name:</td><td><b>'+map.name+'</b></td></tr><tr><td>NPC List:</td><td><b>'+map.npcs+'</b></td></tr><tr><td>MOB List:</td><td><b>'+map.mobs+'</b></td></tr></table>';
+			$('div#map-list').append(html_string);
+		}
+
+		LOCKS.maplist = true;
+	});
+
+	socket.on('GAME-EDITOR-responsePlayerInfo',function(data){
+		truePassword();
+
+		$('textarea#playerinfo').html(data.data);
+	});
+</script>
+</body>
+</html>

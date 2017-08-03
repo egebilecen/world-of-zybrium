@@ -1,0 +1,206 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title>WoZ - Debugger</title>
+    <style>
+        *{font-family: "Arial";}
+        input,textarea:focus{outline: none !important;}
+        canvas{box-sizing: border-box;border: 1px solid #888}
+    </style>
+    <script src="assets/js/socket.io-1.4.5.js"></script>
+    <script src="assets/js/jquery-2.2.3.min.js"></script>
+</head>
+<body>
+<script>
+    const socket = io();
+</script>
+    <h2 style="text-align: center;margin-top: 5px;color: purple">WoZ - Debugger</h2>
+    <div style="display: block;margin-bottom: 10px;">
+        <table>
+            <tr>
+                <td>Show JS variable value:</td>
+                <td><input type="text" name="value" placeholder="variable name" id="var-input"></td>
+                <td><button id="val-button">>></button></td>
+                <td><span style="font-weight: bold">Result:</span> <code id="var-data" style="font-family: 'Monaco';font-size: 14px;background: #ddd;">---</code></td>
+            </tr>
+        </table>
+    </div>
+    <div style="display: block;margin-bottom: 10px;">
+        <table>
+            <tr>
+                <td>Execute JS code:</td>
+                <td><textarea id="executer2" onfocus="this.select();" cols="30" rows="3">alert("Execute JS Command v2 by Zao.");</textarea></td>
+                <td><button onclick="var com = document.getElementById('executer2').value; eval(com);">eXecute!</button></td>
+            </tr>
+        </table>
+    </div>
+
+    <div style="position: relative;">
+        <canvas width="750" height="500" id="canvas" style="display: block;margin: 0 auto;margin-top: 10px;margin-bottom: 20px;background: #ddd;"></canvas>
+        <span style="z-index: 1;position: absolute;font-weight:bold;font-family: Courier;color: red;right: 295px;top:5px;">WoZ Debugger</span>
+    </div>
+    <script>
+        document.getElementById('val-button').onclick = function(){
+
+            switch ( typeof eval(document.getElementById('var-input').value) )
+            {
+                case 'object':
+                    document.getElementById('var-data').innerHTML = eval(document.getElementById('var-input').value);
+                break;
+
+                default:
+                    if( eval(document.getElementById('var-input').value) )
+                        document.getElementById('var-data').innerHTML = eval(document.getElementById('var-input').value) + ' --- ' + typeof eval(document.getElementById('var-input').value);
+                break;
+            }
+
+        }
+
+        const canvas = document.getElementById('canvas');
+        const ctx    = canvas.getContext('2d');
+        const WIDTH  = canvas.width;
+        const HEIGHT = canvas.height;
+
+        // ctx.save();
+        //     ctx.fillStyle = 'black';
+        //     ctx.font = '20pt Courier';
+        //     ctx.fillText('Loading resources..', WIDTH/2 - 150, HEIGHT/2);
+        // ctx.restore();
+
+        // var totalResource   = 4;
+        // var resourceChecker = 0;
+
+        // var cycle = setInterval(function(){
+        //     if( resourceChecker == totalResource )
+        //     {
+        //         clearInterval(cycle);
+        //         setTimeout(function(){
+        //             ctx.clearRect(0,0,WIDTH,HEIGHT);
+        //             setInterval(update, 1000/60);
+        //         }, 500);
+        //     }
+        // },60);
+
+        var img = new Image();
+        img.src = 'assets/game/player/bodies/2.png';
+        img.onload=function(){
+            let frameWidth  = img.width/3;
+            let frameHeight = img.height/4;
+
+            let widthMod  = 0;
+            let heightMod = 2;
+
+            ctx.scale(0.3,0.3);
+            let i = 0;
+            setInterval(() => {
+                ctx.clearRect(0,0,212350,123250);
+
+                if( i % 3 == 0 )
+                {
+                    widthMod++;
+
+                    if( widthMod >= 3 )
+                        widthMod = 0;
+                }
+
+                ctx.drawImage(
+                    img,
+                    widthMod*frameWidth,heightMod*frameHeight,
+                    frameWidth,
+                    frameHeight,
+                    250,50,
+                    img.width,
+                    img.height
+                );
+
+                ctx.drawImage(
+                    img,
+                    widthMod*frameWidth,(heightMod-2)*frameHeight,
+                    frameWidth,
+                    frameHeight,
+                    1500,50,
+                    img.width,
+                    img.height
+                );
+
+                ctx.drawImage(
+                    img,
+                    widthMod*frameWidth-1,heightMod+1*frameHeight,
+                    frameWidth,
+                    frameHeight,
+                    1000,600,
+                    img.width,
+                    img.height
+                );
+
+                ctx.drawImage(
+                    img,
+                    widthMod*frameWidth,heightMod+3*frameHeight,
+                    frameWidth,
+                    frameHeight,
+                    2000,600,
+                    img.width,
+                    img.height
+                );
+
+                i++;
+            },60);
+        }
+    </script>
+<h2 style="text-align: center;margin-bottom: 0;">Tiled CSV File To Array</h2>
+<div style="display: block;margin-bottom: 10px;" align="center">
+    <input type="text" name="csv_url" placeholder="TMX File URL" />
+    <button style="margin: 0 auto;" onclick="convertToCSV()">>></button>
+</div>
+<textarea name="csv_data" style="display: block;margin: 0 auto;width: 50%;height: 300px;margin-bottom: 5px;resize: none;padding: 5px;"></textarea>
+<script>
+    function convertToCSV()
+    {
+        let layer_name = 'cannot-movable';
+        let layer_gid  = '16828';
+
+        $.ajax({
+            url:$('input[name=csv_url]').val(),
+            datatype:'XML',
+            type:'get',
+            success:function(res){
+                let parser = new DOMParser();
+                let XML   = parser.parseFromString(res,'text/xml');
+                let layer = XML.getElementsByTagName('layer');
+                let layer_data;
+
+                for( let i=0; i < layer.length; i++ )
+                {
+                    if( layer[i].attributes.name.value == layer_name )
+                        layer_data = layer[i].textContent.split(layer_gid).join('1');
+                }
+
+                let csv_data = layer_data;
+                csv_data = csv_data.trim();
+
+                let data = csv_data.split('\n');
+
+                let tile_width  = data[0].split(',').join('').split('').length;
+                let tile_height = data.length;
+
+                for( let i=0; i < data.length; i++ )
+                {
+                    data[i] = data[i].split(',').join('').split('');
+                }
+
+                $('textarea[name=csv_data]').val( JSON.stringify( data ) ).select();
+
+                alert('Succesfully converted.');
+
+            },
+            error:function(){
+                alert('FILE NOT FOUND!');
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

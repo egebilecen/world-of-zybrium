@@ -1,0 +1,254 @@
+<div id="game-tab-settings">
+    <div id="left-list">
+        <ul>
+            <li target-tab="1">UI</li>
+            <li target-tab="2">Report</li>
+        </ul>
+    </div>
+    <div id="content-area">
+        <div class="tab" tab="1">
+            <table>
+                <tbody>
+                    <tr class="title">
+                        <td>Show Names</td>
+                        <td>Show Mini-Map</td>
+                        <td>Show Chat</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="toggle-button" id="settings-show-names" status="">
+                                <span class="text on">ON</span>
+                                <span class="circle"></span>
+                                <span class="text off">OFF</span>
+                            </div>
+                        </td>
+                        <td>
+                            Coming soon..
+                        </td>
+                        <td>
+                            <div class="toggle-button" id="settings-show-chat" status="">
+                                <span class="text on">ON</span>
+                                <span class="circle"></span>
+                                <span class="text off">OFF</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="little-title">
+                        <td>Name Color</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="color" name="settings_player_name_color">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="tab" tab="2" id="report-tab">
+            <table>
+                <tbody>
+                <tr class="title">
+                    <td>Report a Problem</td>
+                </tr>
+                <tr>
+                    <td>
+                        Section
+                    </td>
+                    <td>
+                        Message
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <select name="report_section" style="position: absolute;top: 0;">
+                            <option value="1" selected="selected">Bug Report</option>
+                        </select>
+                    </td>
+                    <td>
+                        <textarea name="report_message" maxlength="300" cols="30" rows="10"></textarea>
+                        <span class="small">
+                            <span id="char-left">300</span> character left
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <button id="report-send">Send</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td id="report-data" colspan="3"></td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <span style="padding-left: 5px;font-size: 15px;">
+                            We will send you feedback as soon as possible.
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function(){
+        //--[ INIT SETTINGS
+        $('#settings-show-names').attr('status', MEMORY.game.settings.show_names);
+        $('#settings-show-chat').attr('status', MEMORY.game.settings.show_chat);
+        switch (MEMORY.game.settings.show_names)
+        {
+            case 1:
+                $('#settings-show-names > .circle').css({right:'0'});
+            break;
+
+            case 0:
+                $('#settings-show-names > .circle').css({right:'25px'});
+            break;
+        }
+        switch (MEMORY.game.settings.show_chat)
+        {
+            case 1:
+                $('#settings-show-chat > .circle').css({right:'0'});
+            break;
+
+            case 0:
+                $('#settings-show-chat > .circle').css({right:'25px'});
+            break;
+        }
+
+        $('textarea[name="report_message"]').on('keyup',function(e){
+            let curr_length = parseInt($('textarea[name="report_message"]').attr('maxlength')) - $('textarea[name="report_message"]').val().length;
+
+            $('textarea[name="report_message"] + span.small > span#char-left').html( curr_length );
+            $(this).val( $(this).val().split('  ').join('') );
+        }).on('blur',function(){
+            MEMORY.game.stop_movement = false;
+            MEMORY.game.chat_focus    = false;
+            MEMORY.game.chat.blur();
+        });
+
+        //--[ TAB SYSTEM
+        var last_tab = 1;
+        $('#game-tab-settings > #left-list > ul > li[target-tab="'+last_tab+'"]').addClass('active');
+        $('#game-tab-settings > #content-area > div[tab='+last_tab+']').css({display:'block'});
+
+        $('#game-tab-settings > #left-list > ul > li').on('click',function(){
+            let target_tab = this.getAttribute('target-tab');
+
+            $('#game-tab-settings > #left-list > ul > li[target-tab="'+last_tab+'"]').removeClass('active');
+            $('#game-tab-settings > #left-list > ul > li[target-tab="'+target_tab+'"]').addClass('active');
+
+            $('#game-tab-settings > #content-area > div[tab="'+last_tab+'"]').css({display:'none'});
+            $('#game-tab-settings > #content-area > div[tab="'+target_tab+'"]').css({display:'block'});
+
+            last_tab = target_tab;
+
+            AUDIO_LIST['window_closeAudio'].play();
+        });
+
+        //--[ SETTINGS - UI
+        $('div.toggle-button').on('click',() => { AUDIO_LIST['window_closeAudio'].play(); });
+        var last_status_show_names = MEMORY.game.settings.show_names;
+        $('#settings-show-names').on('click',function(){
+            let current_status = this.getAttribute('status') == 1 ? 0 : 1;
+            switch (current_status)
+            {
+                case 1:
+                    $('#settings-show-names > .circle').css({right:'0'});
+                break;
+
+                case 0:
+                    $('#settings-show-names > .circle').css({right:'25px'});
+                break;
+            }
+            this.setAttribute('status',current_status);
+            MEMORY.game.settings.show_names = current_status;
+            localStorage.setItem('game_settings', JSON.stringify(MEMORY.game.settings));
+
+            last_status_show_names = current_status;
+        });
+
+        var last_status_show_chat = MEMORY.game.settings.show_chat;
+        $('#settings-show-chat').on('click',function(){
+            let current_status = this.getAttribute('status') == 1 ? 0 : 1;
+            switch (current_status)
+            {
+                case 1:
+                    $('#settings-show-chat > .circle').css({right:'0'});
+                    $('#game-chat').show();
+                break;
+
+                case 0:
+                    $('#settings-show-chat > .circle').css({right:'25px'});
+                    $('#game-chat').hide();
+                break;
+            }
+            this.setAttribute('status',current_status);
+            MEMORY.game.settings.show_chat = current_status;
+            localStorage.setItem('game_settings', JSON.stringify(MEMORY.game.settings));
+
+            last_status_show_chat = current_status;
+        });
+
+        $("input[name='settings_player_name_color']").prop('value',MEMORY.game.settings.player_name_color);
+        $("input[name='settings_player_name_color']").on('change',function(){
+            MEMORY.game.settings.player_name_color = this.value;
+            localStorage.setItem('game_settings', JSON.stringify(MEMORY.game.settings));
+        });
+
+        /*
+        * Send Report
+        * */
+        var allow_click = true;
+        $("button#report-send").on('click',function(e){
+            if( allow_click )
+            {
+                this.innerHTML = '<img src="assets/site/loader.gif" style="width:20px;height:20px;">';
+                this.style.cursor = 'not-allowed';
+                allow_click = false;
+
+                let section = $('select[name=report_section]').val();
+                let message = $('textarea[name=report_message]').val();
+
+                if( !section || !message )
+                {
+                    $("#report-data").css('color','crimson').html('Please fill all forms.').stop().fadeIn(350);
+                    allow_click = true;
+                    this.style.cursor = 'pointer';
+                    this.innerHTML = 'Send';
+                }
+                else if( message.length < 10 || message.length > 300  )
+                {
+                    $("#report-data").css('color','crimson').html('Message cannot be lower than 10 characters and cannot be greater than 300 characters.').stop().fadeIn(350);
+                    allow_click = true;
+                    this.style.cursor = 'pointer';
+                    this.innerHTML = 'Send';
+                }
+                else
+                    socket.emit('sendReport',{user_id:CURRENT_PLAYER.user_id,section:section,msg:message});
+            }
+        });
+
+        socket.on('responseSendReport',function(data){
+            if( data.code == 1 ) //success
+            {
+                $("#report-data").css('color','lightgreen').html(data.msg).stop().fadeIn(350);
+                $('textarea[name=report_message]').val('');
+                allow_click = true;
+                $("button#report-send").css('cursor','pointer');
+                $("button#report-send").html('Send');
+            }
+            else if( data.code == 0 ) //fail
+            {
+                $("#report-data").css('color','crimson').html(data.msg).stop().fadeIn(350);
+                allow_click = true;
+                $("button#report-send").css('cursor','pointer');
+                $("button#report-send").html('Send');
+            }
+        });
+    });
+</script>

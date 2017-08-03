@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+	<title>World Of Zybrium</title>
+  	<link rel="stylesheet" href="assets/css/reset.css">
+	<link rel="stylesheet" href="assets/css/custom.style.css"/>
+	<link rel="stylesheet" href="assets/css/jquery.mCustomScrollbar.min.css">
+	<link rel="stylesheet" href="assets/css/font-awesome.min.css">
+	<script src="assets/js/jquery-2.2.3.min.js"></script>
+	<script src="assets/js/socket.io-1.4.5.js"></script>
+	<script src="assets/js/main.js"></script>
+	<script src="assets/js/jquery.mCustomScrollbar.min.js"></script>
+</head>
+<body>
+  <div id="game-div"></div>
+
+  <div id="game-login">
+	  <div id="main">
+		  <form onsubmit="return false;">
+			  <ul>
+				  <li>Kullanici Adi:</li>
+				  <li><input type="text" name="kadi"></li>
+				  <li>Sifre:</li>
+				  <li><input type="password" name="sifre"></li>
+				  <li>
+					  <label>
+						  <input type="checkbox" name="remember_pw" id="remember-pw"> Save password
+					  </label>
+				  </li>
+				  <li><button id="login">Giris Yap</button></li>
+			  </ul>
+		  </form>
+		  <span id="return-data" data="0"></span>
+	  </div>
+  </div>
+
+<script id="auto-fill-form">
+	checkLocalStorage(['username'], function(){
+	  $(function(){
+		  $('input[name=kadi]').val(localStorage.getItem('username'));
+	  });
+	});
+
+	checkLocalStorage(['password'], function(){
+	  $(function(){
+		  $('input[name=sifre]').val(localStorage.getItem('password'));
+		  $('#remember-pw').prop('checked','checked');
+	  });
+	});
+
+	$(function(){
+		$(document).on("keydown", function(e){
+			if( e.keyCode == 13 )
+				$("button#login").click();
+		});
+	});
+</script>
+
+<script src="assets/js/includer.js" id="includer"></script>
+</body>
+</html>
