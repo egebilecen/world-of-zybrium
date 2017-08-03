@@ -1,0 +1,9 @@
+{
+	"_id" : ObjectId("5871221864ec51e1be535723"),
+	"armor_type" : 2,
+	"base_health" : 500,
+	"base_mana" : 500,
+	"id" : 1,
+	"name" : "Fire",
+	"weapon_type" : 1
+},

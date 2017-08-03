@@ -1,0 +1,110 @@
+{
+	"_id" : ObjectId("58efc41bf4305313ec9fc72d"),
+	"description" : "Changes your face.",
+	"id" : 1,
+	"img" : "assets/game/player/faces/1.png",
+	"is_starting_item" : 1,
+	"name" : "Skin(Face)",
+	"rarity" : "common",
+	"type" : 6
+},
+{
+	"_id" : ObjectId("58efd3e4f4305313ec9fc730"),
+	"description" : "Changes your body.",
+	"id" : 2,
+	"img" : "assets/game/player/bodies/2.png",
+	"is_starting_item" : 1,
+	"name" : "Skin(Body) - Man",
+	"rarity" : "common",
+	"type" : 8
+},
+{
+	"_id" : ObjectId("58efd45af4305313ec9fc733"),
+	"description" : "Changes your body.",
+	"id" : 3,
+	"img" : "assets/game/player/bodies/3.png",
+	"is_starting_item" : 1,
+	"name" : "Skin(Body) - Woman",
+	"rarity" : "common",
+	"type" : 8
+},
+{
+	"_id" : ObjectId("58f282025e639309a43acc8b"),
+	"description" : "Changes your face.",
+	"id" : 4,
+	"img" : "assets/game/player/faces/119.png",
+	"is_starting_item" : 1,
+	"name" : "Skin(Face)",
+	"rarity" : "common",
+	"type" : 6
+},
+{
+	"_id" : ObjectId("58f282cb5e639309a43acc8d"),
+	"description" : "Changes your hair.",
+	"id" : 5,
+	"img" : "assets/game/player/hairs/1.png",
+	"is_starting_item" : 1,
+	"name" : "Skin(Hair)",
+	"rarity" : "common",
+	"type" : 7
+},
+{
+	"_id" : ObjectId("58f284ef5e639309a43acc8f"),
+	"description" : "Changes your hair.",
+	"id" : 6,
+	"img" : "assets/game/player/hairs/439.png",
+	"is_starting_item" : 1,
+	"name" : "Skin(Hair)",
+	"rarity" : "common",
+	"type" : 7
+},
+{
+	"_id" : ObjectId("58f3b8165faeb7097cf056af"),
+	"description" : "An armor which is made by animal leather.",
+	"id" : 7,
+	"img" : "assets/game/player/outfits/1.png",
+	"is_starting_item" : 0,
+	"name" : "Leather Armor",
+	"rarity" : "uncommon",
+	"type" : 2
+},
+{
+	"_id" : ObjectId("58fbbd4dbade0b15c4a6dbf0"),
+	"description" : "A robe which is used by a white dragon priest.",
+	"id" : 8,
+	"img" : "assets/game/player/outfits/2.png",
+	"is_starting_item" : 0,
+	"name" : "White Dragon Priest's Robe",
+	"rarity" : "legendary",
+	"type" : 2
+},
+{
+	"_id" : ObjectId("5961e2b59d05c32abccedf3e"),
+	"description" : "A hat which is used by a white dragon priest.",
+	"id" : 9,
+	"img" : "assets/game/player/helmets/249.png",
+	"is_starting_item" : 0,
+	"name" : "White Dragon Priest's Hat",
+	"rarity" : "legendary",
+	"type" : 1
+},
+{
+	"_id" : ObjectId("5961ea279d05c32abccedf40"),
+	"description" : "A helmet which is made by a bull's horn.",
+	"id" : 10,
+	"img" : "assets/game/player/helmets/273.png",
+	"is_starting_item" : 0,
+	"name" : "Bull Helmet (Red)",
+	"rarity" : "epic",
+	"type" : 1
+},
+{
+	"_id" : ObjectId("5963ca2b5b0d811fd49fe511"),
+	"description" : "Made by an ancient hydra's leather.",
+	"id" : 11,
+	"img" : "assets/game/player/outfits/3.png",
+	"is_starting_item" : 0,
+	"name" : "General Tao's Armor",
+	"rarity" : "legendary",
+	"type" : 2
+},

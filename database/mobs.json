@@ -1,0 +1,16 @@
+{
+	"_id" : ObjectId("596dd47db23a4624ace616c3"),
+	"id" : 1,
+	"img" : "assets/game/npc/1.png",
+	"mapID" : 1,
+	"maxSpd" : 10,
+	"name" : "Deneme Mob",
+	"statics" : {
+		"isMoveable" : false,
+		"isAttackable" : false,
+		"isKillable" : false,
+		"isSpeakable" : true
+	},
+	"x" : 250,
+	"y" : 250
+},

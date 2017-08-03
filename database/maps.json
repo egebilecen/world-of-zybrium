@@ -1,0 +1,20 @@
+{
+	"_id" : ObjectId("5867dd3a91a4b61882858e3a"),
+	"allowSpawnWithPlayerCurrentCoords" : false,
+	"entities" : "assets/game/map/town-front-collision.png",
+	"id" : 1,
+	"img" : "assets/game/map/town-front.png",
+	"mobs" : [
+		1
+	],
+	"name" : "Front Area - Tau Village",
+	"npcs" : [
+		1
+	],
+	"player_spawn_x" : 60,
+	"player_spawn_y" : 700,
+	"zoom_height" : 1,
+	"zoom_width" : 1,
+	"zoom_yon" : 1,
+	"zoomed" : "1/2"
+},

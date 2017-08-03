@@ -1,0 +1,73 @@
+{
+	"_id" : ObjectId("58a898bbd6c18d12845c45eb"),
+	"game_player_data" : [
+		{
+			"nickname" : "Zaphiel",
+			"x" : 700,
+			"y" : 650,
+			"maxSpd" : 10,
+			"current_map_id" : NumberInt("1"),
+			"class_id" : 1,
+			"gold" : NumberInt("3000"),
+			"diamond" : 100,
+			"level" : 1,
+			"exp" : 0,
+			"inventory" : [
+				NumberInt("7"),
+				NumberInt("8"),
+				NumberInt("9"),
+				NumberInt("10")
+			],
+			"inventory_limit" : 30,
+			"inventory_equipped" : {
+				"face" : NumberInt("4"),
+				"hair" : NumberInt("5"),
+				"body" : NumberInt("2"),
+				"weapon" : NumberInt("0"),
+				"helmet" : NumberInt("0"),
+				"armor" : NumberInt("11"),
+				"necklace" : NumberInt("0"),
+				"ring" : NumberInt("0")
+			}
+		}
+	],
+	"max_player" : 3,
+	"password" : "bob",
+	"user_id" : 1,
+	"username" : "bob"
+},
+{
+	"_id" : ObjectId("5960189aa903e10860bfc1c5"),
+	"game_player_data" : [
+		{
+			"nickname" : "Test",
+			"x" : 700,
+			"y" : 650,
+			"maxSpd" : 10,
+			"current_map_id" : NumberInt("1"),
+			"class_id" : 1,
+			"gold" : NumberInt("3000"),
+			"diamond" : 100,
+			"level" : 1,
+			"exp" : 0,
+			"inventory" : [
+				NumberInt("8")
+			],
+			"inventory_limit" : 10,
+			"inventory_equipped" : {
+				"face" : NumberInt("1"),
+				"hair" : NumberInt("5"),
+				"body" : NumberInt("2"),
+				"weapon" : NumberInt("0"),
+				"helmet" : NumberInt("0"),
+				"armor" : NumberInt("7"),
+				"necklace" : NumberInt("0"),
+				"ring" : NumberInt("0")
+			}
+		}
+	],
+	"max_player" : 3,
+	"password" : "test",
+	"user_id" : 2,
+	"username" : "test"
+},
