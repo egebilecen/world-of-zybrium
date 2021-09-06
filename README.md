@@ -1,4 +1,4 @@
-# world_of_zybrium
+# World of Zybrium
 A multiplayer game project using by HTML5 Canvas, NodeJS and Socket.io (dropped)
 
 Character Screen
